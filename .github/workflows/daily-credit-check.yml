@@ -1,10 +1,23 @@
-name: Daily Serper Credit Check
+name: Serper Credit Monitoring
 
 on:
   schedule:
-    # Run every day at 06:00 AM SAST (04:00 UTC)
+    # Daily comprehensive report at 06:00 AM SAST (04:00 UTC)
     - cron: '0 4 * * *'
+    # Hourly checks during business hours 08:00-20:00 SAST (06:00-18:00 UTC)
+    - cron: '0 6,7,8,9,10,11,12,13,14,15,16,17,18 * * *'
   workflow_dispatch: # Allows manual triggering for testing
+    inputs:
+      check_type:
+        description: 'Type of check to run'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - daily
+          - hourly
+          - force_alert
 
 jobs:
   credit-check:
@@ -26,6 +39,17 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium
 
+      - name: Determine check type
+        id: check_type
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "type=${{ github.event.inputs.check_type }}" >> $GITHUB_OUTPUT
+          elif [ "$(date -u +%H)" = "04" ]; then
+            echo "type=daily" >> $GITHUB_OUTPUT
+          else
+            echo "type=hourly" >> $GITHUB_OUTPUT
+          fi
+
       - name: Run credit check
         env:
           SERPER_EMAIL: ${{ secrets.SERPER_EMAIL }}
@@ -33,13 +57,16 @@ jobs:
           GMAIL_EMAIL: ${{ secrets.GMAIL_EMAIL }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+          CHECK_TYPE: ${{ steps.check_type.outputs.type }}
+          # Store previous credit count using GitHub's cache/state
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node index.js
 
       - name: Archive logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: error-logs
+          name: error-logs-${{ github.run_id }}
           path: |
             *.log
             screenshots/

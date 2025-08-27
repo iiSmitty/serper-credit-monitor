@@ -1,5 +1,6 @@
 node_modules/
 .env
+credit_history.json
 *.log
 screenshots/
 test-results/

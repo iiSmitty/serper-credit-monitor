@@ -58,27 +58,308 @@ class EmailNotifier {
     }
 
     generateHtmlEmail(creditCount, currentDateTime, statusInfo) {
-        return '<html>' +
-            '<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">' +
-            '<h2 style="color: #333;">Serper Daily Credit Report</h2>' +
-            '<div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">' +
-            '<p style="font-size: 18px; margin: 0;">' +
-            '<strong>Credits Remaining:</strong> ' +
-            '<span style="color: ' + statusInfo.color + '; font-size: 24px;">' + creditCount.toLocaleString() + '</span>' +
-            '</p>' +
-            '<p style="color: #666; margin: 10px 0 0 0;">As of ' + currentDateTime + '</p>' +
-            '</div>' +
-            '<div style="background-color: ' + statusInfo.color + '15; border-left: 4px solid ' + statusInfo.color + '; padding: 15px; margin: 20px 0;">' +
-            '<p style="margin: 0; color: ' + statusInfo.color + ';">' +
-            '<strong>' + statusInfo.icon + ' ' + statusInfo.message + '</strong>' +
-            '</p>' +
-            '</div>' +
-            '<hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">' +
-            '<p style="color: #666; font-size: 12px;">' +
-            'This is an automated message from your Serper Credit Monitor.' +
-            '</p>' +
-            '</body>' +
-            '</html>';
+        return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Serper Daily Credit Report</title>
+        <!--[if mso]>
+        <noscript>
+            <xml>
+                <o:OfficeDocumentSettings>
+                    <o:PixelsPerInch>96</o:PixelsPerInch>
+                </o:OfficeDocumentSettings>
+            </xml>
+        </noscript>
+        <![endif]-->
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                line-height: 1.6;
+                color: #1f2937;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 20px;
+                margin: 0;
+            }
+            
+            .email-container {
+                max-width: 600px;
+                margin: 0 auto;
+                background: #ffffff;
+                border-radius: 16px;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                overflow: hidden;
+            }
+            
+            .header {
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                padding: 32px 24px;
+                text-align: center;
+                color: white;
+                position: relative;
+            }
+            
+            .header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+                opacity: 0.3;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+                font-weight: 700;
+                margin-bottom: 8px;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .header .subtitle {
+                font-size: 16px;
+                opacity: 0.9;
+                font-weight: 400;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .content {
+                padding: 32px 24px;
+            }
+            
+            .credit-card {
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 24px;
+                margin-bottom: 24px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .credit-card::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle, rgba(79, 70, 229, 0.05) 0%, transparent 50%);
+                animation: pulse 3s ease-in-out infinite;
+            }
+            
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); opacity: 0.5; }
+                50% { transform: scale(1.1); opacity: 0.8; }
+            }
+            
+            .credit-label {
+                font-size: 14px;
+                color: #64748b;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 8px;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .credit-amount {
+                font-size: 48px;
+                font-weight: 800;
+                color: ${statusInfo.color};
+                margin-bottom: 8px;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                position: relative;
+                z-index: 1;
+            }
+            
+            .credit-timestamp {
+                font-size: 12px;
+                color: #9ca3af;
+                font-weight: 400;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .status-alert {
+                background: ${statusInfo.color}08;
+                border: 1px solid ${statusInfo.color}20;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 24px;
+                position: relative;
+                overflow: hidden;
+                text-align: center;
+            }
+            
+            .status-alert::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 4px;
+                background: ${statusInfo.color};
+                border-radius: 0 2px 2px 0;
+            }
+            
+            .status-content {
+                position: relative;
+                z-index: 1;
+            }
+            
+            .status-icon {
+                font-size: 32px;
+                margin-bottom: 8px;
+                display: block;
+                line-height: 1;
+            }
+            
+            .status-message {
+                font-size: 16px;
+                font-weight: 600;
+                color: ${statusInfo.color};
+                margin: 0;
+                line-height: 1.4;
+            }
+            
+            .divider {
+                height: 1px;
+                background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%);
+                margin: 32px 0;
+            }
+            
+            .footer {
+                background: #f8fafc;
+                padding: 24px;
+                text-align: center;
+                border-top: 1px solid #e2e8f0;
+            }
+            
+            .footer-text {
+                font-size: 12px;
+                color: #6b7280;
+                margin: 0;
+                line-height: 1.5;
+            }
+            
+            .footer-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: #4f46e5;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 11px;
+                font-weight: 600;
+                margin-top: 12px;
+                text-decoration: none;
+            }
+            
+            .footer-badge::before {
+                content: '🤖';
+                font-size: 14px;
+            }
+            
+            /* Dark mode support */
+            @media (prefers-color-scheme: dark) {
+                .email-container {
+                    background: #1f2937;
+                    color: #f9fafb;
+                }
+                
+                .credit-card {
+                    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+                    border-color: #6b7280;
+                }
+                
+                .footer {
+                    background: #374151;
+                    border-top-color: #6b7280;
+                }
+            }
+            
+            /* Mobile responsiveness */
+            @media only screen and (max-width: 600px) {
+                .email-container {
+                    margin: 10px;
+                    border-radius: 12px;
+                }
+                
+                .header {
+                    padding: 24px 20px;
+                }
+                
+                .header h1 {
+                    font-size: 24px;
+                }
+                
+                .content {
+                    padding: 24px 20px;
+                }
+                
+                .credit-amount {
+                    font-size: 36px;
+                }
+                
+                .credit-card {
+                    padding: 20px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header">
+                <h1>Serper Daily Credit Report</h1>
+                <div class="subtitle">Your API usage monitoring dashboard</div>
+            </div>
+            
+            <div class="content">
+                <div class="credit-card">
+                    <div class="credit-label">Credits Remaining</div>
+                    <div class="credit-amount">${creditCount.toLocaleString()}</div>
+                    <div class="credit-timestamp">As of ${currentDateTime}</div>
+                </div>
+                
+                <div class="status-alert">
+                    <div class="status-content">
+                        <div class="status-icon">${statusInfo.icon}</div>
+                        <div class="status-message">${statusInfo.message}</div>
+                    </div>
+                </div>
+                
+                <div class="divider"></div>
+            </div>
+            
+            <div class="footer">
+                <p class="footer-text">
+                    This is an automated message from your Serper Credit Monitor.<br>
+                    Keeping you informed about your API usage 24/7.
+                </p>
+                <div class="footer-badge">
+                    Automated Monitoring
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>`;
     }
 
     getCreditStatusInfo(creditCount) {

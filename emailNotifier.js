@@ -26,6 +26,7 @@ class EmailNotifier {
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
+                timeZone: 'Africa/Johannesburg',
                 timeZoneName: 'short'
             });
 
@@ -110,6 +111,7 @@ class EmailNotifier {
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
+                timeZone: 'Africa/Johannesburg',
                 timeZoneName: 'short'
             });
 

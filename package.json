@@ -1,0 +1,32 @@
+{
+  "name": "serper-credit-monitor",
+  "version": "1.0.0",
+  "description": "Automated daily monitoring of Serper API credits with email notifications",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js",
+    "install-browsers": "npx playwright install chromium"
+  },
+  "keywords": [
+    "serper",
+    "api",
+    "credit",
+    "monitoring",
+    "automation",
+    "web-scraping"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "^1.40.0",
+    "nodemailer": "^6.9.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

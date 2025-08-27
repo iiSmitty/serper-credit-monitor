@@ -1,0 +1,46 @@
+name: Daily Serper Credit Check
+
+on:
+  schedule:
+    # Run every day at 9:00 AM UTC (adjust timezone as needed)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allows manual triggering for testing
+
+jobs:
+  credit-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
+      - name: Run credit check
+        env:
+          SERPER_EMAIL: ${{ secrets.SERPER_EMAIL }}
+          SERPER_PASSWORD: ${{ secrets.SERPER_PASSWORD }}
+          GMAIL_EMAIL: ${{ secrets.GMAIL_EMAIL }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: node index.js
+
+      - name: Archive logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: error-logs
+          path: |
+            *.log
+            screenshots/
+          retention-days: 7

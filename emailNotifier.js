@@ -26,8 +26,8 @@ class EmailNotifier {
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-                timeZone: 'Africa/Johannesburg',
-                timeZoneName: 'short'
+                hour12: false,
+                timeZone: 'Africa/Johannesburg'
             });
 
             const statusInfo = this.getCreditStatusInfo(creditCount);
@@ -111,8 +111,8 @@ class EmailNotifier {
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-                timeZone: 'Africa/Johannesburg',
-                timeZoneName: 'short'
+                hour12: false,
+                timeZone: 'Africa/Johannesburg'
             });
 
             const mailOptions = {

@@ -2,8 +2,8 @@ name: Daily Serper Credit Check
 
 on:
   schedule:
-    # Run every day at 9:00 AM UTC (adjust timezone as needed)
-    - cron: '0 9 * * *'
+    # Run every day at 06:00 AM SAST (04:00 UTC)
+    - cron: '0 4 * * *'
   workflow_dispatch: # Allows manual triggering for testing
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
 
       - name: Archive logs on failure
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: error-logs
           path: |

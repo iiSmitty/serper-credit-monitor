@@ -6,7 +6,7 @@ on:
     - cron: '0 4 * * *'
     # Hourly checks during business hours 08:00-20:00 SAST (06:00-18:00 UTC)
     - cron: '0 6,7,8,9,10,11,12,13,14,15,16,17,18 * * *'
-  workflow_dispatch: # Allows manual triggering for testing
+  workflow_dispatch:
     inputs:
       check_type:
         description: 'Type of check to run'
@@ -33,6 +33,15 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
+      # Add cache restoration step
+      - name: Restore credit history cache
+        uses: actions/cache/restore@v4
+        with:
+          path: credit_history.json
+          key: serper-credits-${{ github.run_number }}
+          restore-keys: |
+            serper-credits-
+
       - name: Install dependencies
         run: npm ci
 
@@ -58,9 +67,16 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
           CHECK_TYPE: ${{ steps.check_type.outputs.type }}
-          # Store previous credit count using GitHub's cache/state
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node index.js
+
+      # Add cache saving step
+      - name: Save credit history cache
+        uses: actions/cache/save@v4
+        if: always()  # Save even if the job fails
+        with:
+          path: credit_history.json
+          key: serper-credits-${{ github.run_number }}
 
       - name: Archive logs on failure
         if: failure()

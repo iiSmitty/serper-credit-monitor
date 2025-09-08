@@ -152,187 +152,359 @@ class EmailNotifier {
         const changeIcon = changeAmount >= 0 ? '↗️' : '↘️';
 
         return `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Serper Credit Alert</title>
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-                
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-                
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Serper Credit Alert</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                line-height: 1.6;
+                color: #1f2937;
+                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                padding: 20px;
+                margin: 0;
+            }
+            
+            .email-container {
+                max-width: 600px;
+                margin: 0 auto;
+                background: #ffffff;
+                border-radius: 16px;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                overflow: hidden;
+            }
+            
+            .header {
+                background: linear-gradient(135deg, ${alertInfo.color} 0%, ${alertInfo.color}dd 100%);
+                padding: 24px;
+                text-align: center;
+                color: white;
+                position: relative;
+            }
+            
+            .header-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .header-title {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+                font-weight: 700;
+                margin: 0;
+                line-height: 1.2;
+            }
+            
+            .priority-badge {
+                background: rgba(255,255,255,0.25);
+                backdrop-filter: blur(10px);
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+                border: 1px solid rgba(255,255,255,0.2);
+                white-space: nowrap;
+            }
+            
+            .content {
+                padding: 24px;
+            }
+            
+            .alert-summary {
+                background: linear-gradient(135deg, ${alertInfo.color}08 0%, ${alertInfo.color}15 100%);
+                border: 2px solid ${alertInfo.color}30;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 24px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .alert-summary::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 4px;
+                background: ${alertInfo.color};
+                border-radius: 0 2px 2px 0;
+            }
+            
+            .alert-message {
+                font-size: 16px;
+                font-weight: 600;
+                color: ${alertInfo.color};
+                margin: 0;
+                line-height: 1.4;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .stats-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+            
+            .stat-card {
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 20px;
+                text-align: center;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .stat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+            
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, ${alertInfo.color} 0%, ${alertInfo.color}80 100%);
+            }
+            
+            .stat-label {
+                font-size: 12px;
+                color: #64748b;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 8px;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .stat-value {
+                font-size: 28px;
+                font-weight: 700;
+                color: #1f2937;
+                margin-bottom: 4px;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .change-indicator {
+                font-size: 14px;
+                font-weight: 600;
+                color: ${changeColor};
+                margin-top: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .timestamp {
+                font-size: 12px;
+                color: #9ca3af;
+                text-align: center;
+                margin-bottom: 20px;
+                padding: 8px 16px;
+                background: #f8fafc;
+                border-radius: 20px;
+                border: 1px solid #e2e8f0;
+                display: inline-block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .footer {
+                background: #f8fafc;
+                padding: 20px 24px;
+                text-align: center;
+                border-top: 1px solid #e2e8f0;
+            }
+            
+            .footer-text {
+                font-size: 12px;
+                color: #6b7280;
+                margin: 0;
+                line-height: 1.5;
+            }
+            
+            .footer-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: ${alertInfo.color};
+                color: white;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 11px;
+                font-weight: 600;
+                margin-top: 12px;
+                text-decoration: none;
+            }
+            
+            .footer-badge::before {
+                content: '🤖';
+                font-size: 14px;
+            }
+            
+            /* Mobile responsiveness */
+            @media only screen and (max-width: 600px) {
                 body {
-                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                    line-height: 1.6;
-                    color: #1f2937;
-                    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-                    padding: 20px;
-                    margin: 0;
+                    padding: 10px;
                 }
                 
                 .email-container {
-                    max-width: 600px;
-                    margin: 0 auto;
-                    background: #ffffff;
-                    border-radius: 16px;
-                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-                    overflow: hidden;
+                    border-radius: 12px;
                 }
                 
                 .header {
-                    background: linear-gradient(135deg, ${alertInfo.color} 0%, ${alertInfo.color}dd 100%);
-                    padding: 24px;
-                    text-align: center;
-                    color: white;
+                    padding: 20px 16px;
                 }
                 
                 .header h1 {
-                    font-size: 24px;
-                    font-weight: 700;
-                    margin-bottom: 8px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
+                    font-size: 20px;
+                }
+                
+                .header-title {
+                    flex-direction: column;
                     gap: 8px;
                 }
                 
-                .priority-badge {
-                    background: rgba(255,255,255,0.2);
-                    padding: 4px 8px;
-                    border-radius: 12px;
-                    font-size: 10px;
-                    font-weight: 600;
-                    letter-spacing: 0.5px;
-                }
-                
                 .content {
-                    padding: 24px;
-                }
-                
-                .alert-summary {
-                    background: ${alertInfo.color}10;
-                    border: 2px solid ${alertInfo.color}30;
-                    border-radius: 12px;
-                    padding: 20px;
-                    margin-bottom: 20px;
-                    text-align: center;
-                }
-                
-                .alert-message {
-                    font-size: 16px;
-                    font-weight: 600;
-                    color: ${alertInfo.color};
-                    margin: 0;
+                    padding: 20px 16px;
                 }
                 
                 .stats-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 16px;
-                    margin-bottom: 20px;
+                    grid-template-columns: 1fr;
+                    gap: 12px;
                 }
                 
                 .stat-card {
-                    background: #f8fafc;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 8px;
                     padding: 16px;
-                    text-align: center;
-                }
-                
-                .stat-label {
-                    font-size: 12px;
-                    color: #64748b;
-                    font-weight: 500;
-                    text-transform: uppercase;
-                    margin-bottom: 4px;
                 }
                 
                 .stat-value {
                     font-size: 24px;
-                    font-weight: 700;
-                    color: #1f2937;
                 }
                 
-                .change-indicator {
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: ${changeColor};
-                    margin-top: 4px;
+                .priority-badge {
+                    padding: 4px 8px;
+                    font-size: 10px;
+                }
+            }
+            
+            /* Dark mode support */
+            @media (prefers-color-scheme: dark) {
+                .email-container {
+                    background: #1f2937;
+                    color: #f9fafb;
+                }
+                
+                .stat-card {
+                    background: #374151;
+                    border-color: #6b7280;
+                    color: #f9fafb;
+                }
+                
+                .stat-value {
+                    color: #f9fafb;
                 }
                 
                 .footer {
-                    background: #f8fafc;
-                    padding: 16px 24px;
-                    text-align: center;
-                    border-top: 1px solid #e2e8f0;
-                }
-                
-                .footer-text {
-                    font-size: 12px;
-                    color: #6b7280;
-                    margin: 0;
+                    background: #374151;
+                    border-top-color: #6b7280;
                 }
                 
                 .timestamp {
-                    font-size: 12px;
-                    color: #9ca3af;
-                    text-align: center;
-                    margin-bottom: 20px;
+                    background: #374151;
+                    border-color: #6b7280;
+                    color: #d1d5db;
                 }
-            </style>
-        </head>
-        <body>
-            <div class="email-container">
-                <div class="header">
-                    <h1>
-                        ${alertInfo.icon} ${alertInfo.title}
+            }
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-title">
+                        <h1>${alertInfo.icon} ${alertInfo.title}</h1>
                         <span class="priority-badge">${alertInfo.priority}</span>
-                    </h1>
-                </div>
-                
-                <div class="content">
-                    <div class="timestamp">Alert generated at ${currentDateTime}</div>
-                    
-                    <div class="alert-summary">
-                        <p class="alert-message">${alertInfo.message}</p>
                     </div>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-label">Current Credits</div>
-                            <div class="stat-value" style="color: ${statusInfo.color}">${creditCount.toLocaleString()}</div>
-                        </div>
-                        ${previousCredits ? `
-                        <div class="stat-card">
-                            <div class="stat-label">Previous Credits</div>
-                            <div class="stat-value">${previousCredits.toLocaleString()}</div>
-                            ${changeAmount !== 0 ? `<div class="change-indicator">${changeIcon} ${Math.abs(changeAmount).toLocaleString()}</div>` : ''}
-                        </div>
-                        ` : `
-                        <div class="stat-card">
-                            <div class="stat-label">Status</div>
-                            <div class="stat-value" style="color: ${statusInfo.color}; font-size: 18px;">${statusInfo.icon}</div>
-                        </div>
-                        `}
-                    </div>
-                </div>
-                
-                <div class="footer">
-                    <p class="footer-text">
-                        Automated alert from your Serper Credit Monitor<br>
-                        Monitoring your API usage to prevent service interruption
-                    </p>
                 </div>
             </div>
-        </body>
-        </html>`;
+            
+            <div class="content">
+                <div class="timestamp">Alert generated at ${currentDateTime}</div>
+                
+                <div class="alert-summary">
+                    <p class="alert-message">${alertInfo.message}</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Current Credits</div>
+                        <div class="stat-value" style="color: ${statusInfo.color}">${creditCount.toLocaleString()}</div>
+                    </div>
+                    ${previousCredits ? `
+                    <div class="stat-card">
+                        <div class="stat-label">Previous Credits</div>
+                        <div class="stat-value">${previousCredits.toLocaleString()}</div>
+                        ${changeAmount !== 0 ? `<div class="change-indicator">${changeIcon} ${Math.abs(changeAmount).toLocaleString()}</div>` : ''}
+                    </div>
+                    ` : `
+                    <div class="stat-card">
+                        <div class="stat-label">Status</div>
+                        <div class="stat-value" style="color: ${statusInfo.color}; font-size: 18px;">${statusInfo.icon}</div>
+                    </div>
+                    `}
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p class="footer-text">
+                    Automated alert from your Serper Credit Monitor<br>
+                    Monitoring your API usage to prevent service interruption
+                </p>
+                <div class="footer-badge">
+                    Automated Monitoring
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>`;
     }
 
     generatePlainTextEmail(creditCount, currentDateTime, statusInfo) {

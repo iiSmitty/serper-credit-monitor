@@ -38,22 +38,23 @@ function shouldSendHourlyAlert(currentCredits, history) {
         return { shouldAlert: false, reason: 'Outside monitoring hours' };
     }
 
-    // Always alert if credits are critically low (< 100)
+    // CRITICAL: Always alert if credits are below 100
     if (currentCredits < 100) {
         return {
             shouldAlert: true,
-            reason: 'Critical credits level',
+            reason: 'Critical credits level - below 100',
             alertType: 'critical'
         };
     }
 
-    // Check for significant drops
+    // MAJOR DROP: Alert if credits dropped by more than 1000 credits or more than 50%
+    // (regardless of current level, as this indicates a serious issue)
     if (history.lastCredits) {
         const creditDrop = history.lastCredits - currentCredits;
         const dropPercentage = (creditDrop / history.lastCredits) * 100;
 
-        // Alert if credits dropped by more than 30% or more than 500 credits
-        if (creditDrop > 500 || dropPercentage > 30) {
+        // Alert for massive drops that could indicate a problem
+        if (creditDrop > 1000 || dropPercentage > 50) {
             // Check if we already alerted for a similar drop today
             const today = now.toDateString();
             const todayAlerts = history.significantDropAlerts.filter(alert =>
@@ -64,8 +65,8 @@ function shouldSendHourlyAlert(currentCredits, history) {
             if (todayAlerts.length === 0) {
                 return {
                     shouldAlert: true,
-                    reason: `Significant drop: ${creditDrop} credits (${dropPercentage.toFixed(1)}%)`,
-                    alertType: 'significant_drop',
+                    reason: `Major drop detected: ${creditDrop} credits (${dropPercentage.toFixed(1)}%)`,
+                    alertType: 'major_drop',
                     dropAmount: creditDrop,
                     dropPercentage: dropPercentage
                 };
@@ -73,16 +74,17 @@ function shouldSendHourlyAlert(currentCredits, history) {
         }
     }
 
-    // Alert if credits are in warning zone and dropping
-    if (currentCredits < 500 && history.lastCredits && currentCredits < history.lastCredits) {
+    // APPROACHING CRITICAL: Alert if credits are between 100-200 and dropping
+    // (gives some advance warning before hitting critical)
+    if (currentCredits >= 100 && currentCredits <= 200 && history.lastCredits && currentCredits < history.lastCredits) {
         return {
             shouldAlert: true,
-            reason: 'Credits in warning zone and still dropping',
-            alertType: 'warning_zone_drop'
+            reason: 'Approaching critical level and still dropping',
+            alertType: 'approaching_critical'
         };
     }
 
-    return { shouldAlert: false, reason: 'No significant change' };
+    return { shouldAlert: false, reason: 'Credits above threshold and no major issues detected' };
 }
 
 async function main() {
@@ -125,7 +127,7 @@ async function main() {
                 emailSent = true;
 
                 // Record this alert to prevent spam
-                if (alertDecision.alertType === 'significant_drop') {
+                if (alertDecision.alertType === 'major_drop') {
                     history.significantDropAlerts.push({
                         date: now.toISOString(),
                         creditDrop: alertDecision.dropAmount,

@@ -94,30 +94,30 @@ class EmailNotifier {
         switch (alertDecision.alertType) {
             case 'critical':
                 return {
-                    subject: `🚨 URGENT: Serper Credits Critical (${creditCount} remaining)`,
+                    subject: `🚨 URGENT: Serper Credits CRITICAL (${creditCount} remaining)`,
                     icon: '🚨',
-                    title: 'Critical Credit Level',
-                    message: 'Your credits have dropped to a critical level and may run out soon!',
+                    title: 'CRITICAL - Credits Below 100',
+                    message: 'Your credits have dropped below 100 and may run out very soon! Immediate action required.',
                     color: '#dc3545',
-                    priority: 'HIGH'
+                    priority: 'CRITICAL'
                 };
-            case 'significant_drop':
+            case 'major_drop':
                 const dropAmount = previousCredits - creditCount;
                 return {
-                    subject: `⚠️ Serper Credits Alert: Large Drop Detected (-${dropAmount} credits)`,
+                    subject: `⚠️ Serper Credits Alert: Major Drop Detected (-${dropAmount} credits)`,
                     icon: '📉',
-                    title: 'Significant Credit Drop',
-                    message: `Your credits dropped by ${dropAmount} (${alertDecision.dropPercentage.toFixed(1)}%) since the last check.`,
-                    color: '#ffc107',
-                    priority: 'MEDIUM'
-                };
-            case 'warning_zone_drop':
-                return {
-                    subject: `⚠️ Serper Credits Warning: Continued Decline (${creditCount} remaining)`,
-                    icon: '⚠️',
-                    title: 'Credits Continuing to Drop',
-                    message: 'Your credits are in the warning zone and continue to decline.',
+                    title: 'Major Credit Drop Detected',
+                    message: `Your credits dropped by ${dropAmount} (${alertDecision.dropPercentage.toFixed(1)}%) since the last check. This may indicate an issue.`,
                     color: '#ff6b35',
+                    priority: 'HIGH'
+                };
+            case 'approaching_critical':
+                return {
+                    subject: `⚠️ Serper Credits Warning: Approaching Critical Level (${creditCount} remaining)`,
+                    icon: '⚠️',
+                    title: 'Approaching Critical Level',
+                    message: 'Your credits are approaching the critical threshold and continue to decline.',
+                    color: '#ffc107',
                     priority: 'MEDIUM'
                 };
             default:
@@ -820,23 +820,35 @@ class EmailNotifier {
     }
 
     getCreditStatusInfo(creditCount) {
-        if (creditCount > 1000) {
+        if (creditCount >= 1000) {
             return {
                 color: '#28a745',
                 icon: '✅',
                 message: 'You have plenty of credits remaining.'
             };
-        } else if (creditCount > 100) {
+        } else if (creditCount >= 500) {
+            return {
+                color: '#17a2b8', // Info blue instead of warning
+                icon: '📊',
+                message: 'Your credit levels are healthy.'
+            };
+        } else if (creditCount >= 200) {
             return {
                 color: '#ffc107',
+                icon: '📊',
+                message: 'Credit levels are moderate. Keep an eye on usage.'
+            };
+        } else if (creditCount >= 100) {
+            return {
+                color: '#ff6b35',
                 icon: '⚠️',
-                message: 'Your credits are getting low. Consider topping up soon.'
+                message: 'Credits are getting low. Consider topping up soon.'
             };
         } else {
             return {
                 color: '#dc3545',
                 icon: '🚨',
-                message: 'URGENT: You\'re running very low on credits! Please top up immediately.'
+                message: 'CRITICAL: Very low credit levels! Top up immediately to avoid service interruption.'
             };
         }
     }

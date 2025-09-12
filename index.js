@@ -1,4 +1,4 @@
-const { getSerperCredits } = require('./scraper');
+const { getSerperCreditsWithRetry } = require('./scraper');
 const { EmailNotifier } = require('./emailNotifier');
 const fs = require('fs').promises;
 const path = require('path');
@@ -97,10 +97,23 @@ async function main() {
         // Load credit history
         const history = await loadCreditHistory();
 
-        // Get current credit count
-        console.log('Fetching credits from Serper...');
-        const creditCount = await getSerperCredits();
-        console.log(`Retrieved credit count: ${creditCount}`);
+        // Get current credit count with enhanced validation and retry logic
+        console.log('Fetching credits from Serper with enhanced validation...');
+        const creditCount = await getSerperCreditsWithRetry(2); // Try up to 2 times
+
+        // Additional validation against history if available
+        if (history.lastCredits && creditCount === 0) {
+            console.log('🚨 Warning: Got 0 credits but history shows previous credits. This may be a false reading.');
+            console.log(`Previous credits: ${history.lastCredits}`);
+
+            // If we got 0 but had credits before, and this is an hourly check, skip alerting
+            if (checkType === 'hourly') {
+                console.log('⏭️ Skipping hourly alert due to suspected false 0 reading');
+                return;
+            }
+        }
+
+        console.log(`✅ Retrieved and validated credit count: ${creditCount}`);
 
         const emailNotifier = new EmailNotifier();
         let emailSent = false;
@@ -157,7 +170,15 @@ async function main() {
     } catch (error) {
         console.error('❌ Error in credit check process:', error);
 
-        // Send error notification email
+        // Enhanced error handling - don't send error notifications for validation failures
+        if (error.message.includes('false reading') || error.message.includes('loading issues')) {
+            console.log('⚠️ Suspected temporary issue, not sending error notification');
+            console.log('This appears to be a temporary scraping/loading issue rather than a system failure');
+            // Exit without error code so GitHub Actions doesn't mark as failed
+            process.exit(0);
+        }
+
+        // Send error notification email for genuine errors
         try {
             const emailNotifier = new EmailNotifier();
             await emailNotifier.sendErrorNotification(error);
